@@ -1,16 +1,16 @@
 const COLS = 10, ROWS = 20
 
 class Tetris {
-    board: [];
-    lose: boolean;
-    interval: number;
-    intervalRender: number;
-    current: [number[], number[]];
-    currentX: number;
-    currentY: number;
-    freezed: boolean;
-    shapes: [number[], number[], number[], number[], number[], number[], number[]];
-    colors: string[];
+    private board: any[];
+    private lose: boolean;
+    private interval: number;
+    private intervalRender: number;
+    private current: [number[], number[]];
+    private currentX: number;
+    private currentY: number;
+    private isFreezed: boolean;
+    private shapes: [number[], number[], number[], number[], number[], number[], number[]];
+    private colors: string[];
 
     constructor() {
         this.board = [];
@@ -20,7 +20,7 @@ class Tetris {
         this.current = [[], []];
         this.currentX = 0;
         this.currentY = 0;
-        this.freezed = false;
+        this.isFreezed = false;
         this.shapes = [
             [ 1, 1, 1, 1 ],
             [ 1, 1, 1, 0,
@@ -40,7 +40,10 @@ class Tetris {
     }
 
     newShape() {
-
+        if (!this.lose) {
+            const shapeIdx = Math.floor(Math.random() * 7);
+            this.board.push(this.shapes[shapeIdx]);
+        }
     }
 }
 
