@@ -5,7 +5,7 @@ class Tetris {
     private lose: boolean;
     private interval: number;
     private intervalRender: number;
-    private current: [number[], number[]];
+    private current: any[];
     private currentX: number;
     private currentY: number;
     private isFreezed: boolean;
@@ -20,7 +20,7 @@ class Tetris {
         this.current = [[], []];
         this.currentX = 0;
         this.currentY = 0;
-        this.isFreezed = false;
+        this.isFreezed = true;
         this.shapes = [
             [ 1, 1, 1, 1 ],
             [ 1, 1, 1, 0,
@@ -39,10 +39,34 @@ class Tetris {
         this.colors = ['cyan', 'orange', 'blue', 'yellow', 'red', 'green', 'purple'];
     }
 
-    newShape() {
-        if (!this.lose) {
-            const shapeIdx = Math.floor(Math.random() * 7);
-            this.board.push(this.shapes[shapeIdx]);
+    newShape(): void {
+        const shapeIdx = Math.floor(Math.random() * this.shapes.length);
+        const shape = this.shapes[shapeIdx];
+
+        this.current = [];
+        for (let y = 0; y < 4; y++) {
+            this.current[y] = [];
+            for (let x = 0; x < 4; x++) {
+                let i = 4 * y + x;
+                if (typeof shape[i] !== "undefined" && shape[i]) {
+                    this.current[y][x] = shapeIdx + 1;
+                } else {
+                    this.current[y][x] = 0;
+                }
+            }
+        }
+
+        this.isFreezed = false;
+        this.currentX = 5;
+        this.currentY = 0;
+    }
+
+    clearBoard(): void {
+        for (let y = 0; y < ROWS; y++) {
+            this.board[y] = [];
+            for (let x = 0; x < COLS; x++) {
+                this.board[y][x] = 0;
+            }
         }
     }
 }
