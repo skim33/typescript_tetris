@@ -29,8 +29,8 @@ class Tetris {
               0, 0, 1 ],
             [ 1, 1, 0, 0,
                  1, 1 ],
-            [ 1, 1, 0, 0,
-              0, 1, 1 ],
+            [ 0, 1, 1, 0,
+              1, 1, 0 ],
             [ 0, 1, 1, 0,
                  1, 1 ],
             [ 0, 1, 0, 0,
@@ -56,6 +56,8 @@ class Tetris {
             }
         }
 
+        console.log(this.current)
+
         this.isFreezed = false;
         this.currentX = 5;
         this.currentY = 0;
@@ -69,6 +71,14 @@ class Tetris {
             }
         }
     }
+
+    rotate(): any[] {
+        const cur = this.current[0].map((col: [], c: number) => this.current.map((row: [], r: number) => this.current[r][3 - c]));
+        console.log(cur);
+        return cur;
+    }
+
+
 }
 
 export { Tetris }
