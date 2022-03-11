@@ -56,7 +56,7 @@ class Tetris {
             }
         }
 
-        console.log(this.current)
+        console.log(this.current);
 
         this.isFreezed = false;
         this.currentX = 5;
@@ -76,6 +76,20 @@ class Tetris {
         const cur = this.current[0].map((col: [], c: number) => this.current.map((row: [], r: number) => this.current[r][3 - c]));
         console.log(cur);
         return cur;
+    }
+
+    freeze(): void {
+        for (let y = 0; y < 4; y++) {
+            for (let x = 0; x < 4; x++) {
+                if (this.current[y][x]) {
+                    this.board[y + this.currentY][x + this.currentX] = this.current[y][x];
+                }
+            }
+        }
+    }
+
+    start(): void {
+        this.newShape();
     }
 
 

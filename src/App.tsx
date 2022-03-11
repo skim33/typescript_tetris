@@ -3,15 +3,21 @@ import './App.css';
 import {Tetris} from "./helpers/tetris";
 
 function App() {
-  const tetris = new Tetris();
-  tetris.newShape();
-  tetris.rotate();
+    const onClick = () => {
+        const tetris = new Tetris();
+        tetris.start();
+        tetris.rotate();
+    }
 
   return (
     <div className="App">
-      <canvas id="canvas" width={300} height={600}></canvas>
-      <button className="start-btn">Start</button>
-
+        <div className="content-wrapper">
+            <canvas id="canvas" className="canvas"></canvas>
+            <div className="right-content">
+                <div className="score-box">1000</div>
+                <button className="start-btn" id="start" onClick={onClick}>Start</button>
+            </div>
+        </div>
     </div>
   );
 }
