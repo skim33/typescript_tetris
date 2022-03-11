@@ -86,6 +86,7 @@ class Tetris {
                 }
             }
         }
+        this.isFreezed = true;
     }
 
     start(): void {
