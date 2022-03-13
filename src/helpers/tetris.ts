@@ -78,6 +78,24 @@ class Tetris {
         return cur;
     }
 
+// keep the element moving down, creating new shapes and clearing lines
+    function tick() {
+        if ( valid( 0, 1 ) ) {
+            ++currentY;
+        }
+        // if the element settled
+        else {
+            freeze();
+            valid(0, 1);
+            clearLines();
+            if (lose) {
+                clearAllIntervals();
+                return false;
+            }
+            newShape();
+        }
+    }
+
     freeze(): void {
         for (let y = 0; y < 4; y++) {
             for (let x = 0; x < 4; x++) {
@@ -89,9 +107,111 @@ class Tetris {
         this.isFreezed = true;
     }
 
+    // here
+    clearfilledLines(): void {
+        for ( var y = ROWS - 1; y >= 0; --y ) {
+            var rowFilled = true;
+            for ( var x = 0; x < COLS; ++x ) {
+                if ( board[ y ][ x ] == 0 ) {
+                    rowFilled = false;
+                    break;
+                }
+            }
+            if ( rowFilled ) {
+                document.getElementById( 'clearsound' ).play();
+                for ( var yy = y; yy > 0; --yy ) {
+                    for ( var x = 0; x < COLS; ++x ) {
+                        board[ yy ][ x ] = board[ yy - 1 ][ x ];
+                    }
+                }
+                ++y;
+            }
+        }
+    }
+
+    // checks if the resulting position of current shape will be feasible
+    function valid( offsetX, offsetY, newCurrent ) {
+        offsetX = offsetX || 0;
+        offsetY = offsetY || 0;
+        offsetX = currentX + offsetX;
+        offsetY = currentY + offsetY;
+        newCurrent = newCurrent || current;
+
+        for ( var y = 0; y < 4; ++y ) {
+            for ( var x = 0; x < 4; ++x ) {
+                if ( newCurrent[ y ][ x ] ) {
+                    if ( typeof board[ y + offsetY ] == 'undefined'
+                        || typeof board[ y + offsetY ][ x + offsetX ] == 'undefined'
+                        || board[ y + offsetY ][ x + offsetX ]
+                        || x + offsetX < 0
+                        || y + offsetY >= ROWS
+                        || x + offsetX >= COLS ) {
+                        if (offsetY == 1 && freezed) {
+                            lose = true; // lose if the current shape is settled at the top most row
+                            document.getElementById('playbutton').disabled = false;
+                        }
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    function keyPress( key ) {
+        switch ( key ) {
+            case 'left':
+                if ( valid( -1 ) ) {
+                    --currentX;
+                }
+                break;
+            case 'right':
+                if ( valid( 1 ) ) {
+                    ++currentX;
+                }
+                break;
+            case 'down':
+                if ( valid( 0, 1 ) ) {
+                    ++currentY;
+                }
+                break;
+            case 'rotate':
+                var rotated = rotate( current );
+                if ( valid( 0, 0, rotated ) ) {
+                    current = rotated;
+                }
+                break;
+            case 'drop':
+                while( valid(0, 1) ) {
+                    ++currentY;
+                }
+                tick();
+                break;
+        }
+    }
+
     start(): void {
         this.newShape();
     }
+
+    // function playButtonClicked() {
+    //     newGame();
+    //     document.getElementById("playbutton").disabled = true;
+    // }
+    //
+    // function newGame() {
+    //     clearAllIntervals();
+    //     intervalRender = setInterval( render, 30 );
+    //     init();
+    //     newShape();
+    //     lose = false;
+    //     interval = setInterval( tick, 400 );
+    // }
+    //
+    // function clearAllIntervals(){
+    //     clearInterval( interval );
+    //     clearInterval( intervalRender );
+    // }
 
 
 }
