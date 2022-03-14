@@ -78,7 +78,7 @@ export default class Tetris {
         return cur;
     }
 
-    tick() {
+    tick(): void {
         if ( this.validate( 0, 1 ) ) {
             ++this.currentY;
         } else {
@@ -150,7 +150,7 @@ export default class Tetris {
         return true;
     }
 
-    keyPress( key: string ) {
+    keyPress( key: string ): void {
         switch ( key ) {
             case 'left':
                 if ( this.validate( -1 ) ) {
@@ -179,6 +179,8 @@ export default class Tetris {
                 }
                 this.tick();
                 break;
+            default:
+                // do nothing
         }
     }
 
@@ -191,12 +193,12 @@ export default class Tetris {
         }
     }
 
-    playButtonClicked() {
+    playButtonClicked(): void {
         this.newGame();
         // document.getElementById("start-btn").disabled = true;
     }
 
-    newGame() {
+    newGame(): void {
         this.clearAllIntervals();
         this.intervalRender = setInterval( render, 30 );
         this.clearBoard();
@@ -205,7 +207,7 @@ export default class Tetris {
         this.interval = setInterval( this.tick, 400 );
     }
 
-    clearAllIntervals(){
+    clearAllIntervals(): void{
         if (this.interval) {
             clearInterval(this.interval);
         }
