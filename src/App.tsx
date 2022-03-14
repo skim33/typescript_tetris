@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {Tetris} from "./helpers/tetris";
+import Tetris from "./helpers/tetris";
 
 function App() {
     const onClick = () => {

@@ -1,6 +1,6 @@
-const COLS = 10, ROWS = 20
+const COLS = 10, ROWS = 20;
 
-class Tetris {
+export default class Tetris {
     private readonly board: any[];
     private lose: boolean;
     private interval: NodeJS.Timeout | undefined;
@@ -8,7 +8,7 @@ class Tetris {
     private current: any[];
     private currentX: number;
     private currentY: number;
-    private isFreezed: boolean;
+    private isFrozen: boolean;
     private readonly shapes: [number[], number[], number[], number[], number[], number[], number[]];
     private colors: string[];
 
@@ -20,7 +20,7 @@ class Tetris {
         this.current = [[], []];
         this.currentX = 0;
         this.currentY = 0;
-        this.isFreezed = true;
+        this.isFrozen = true;
         this.shapes = [
             [ 1, 1, 1, 1 ],
             [ 1, 1, 1, 0,
@@ -58,7 +58,7 @@ class Tetris {
 
         console.log(this.current);
 
-        this.isFreezed = false;
+        this.isFrozen = false;
         this.currentX = 5;
         this.currentY = 0;
     }
@@ -101,13 +101,13 @@ class Tetris {
                 }
             }
         }
-        this.isFreezed = true;
+        this.isFrozen = true;
     }
 
     clearFilledLines(): void {
-        for ( let y = ROWS - 1; y >= 0; --y ) {
+        for ( let y = ROWS - 1; y >= 0; y++ ) {
             let rowFilled = true;
-            for ( let x = 0; x < COLS; ++x ) {
+            for ( let x = 0; x < COLS; x++ ) {
                 if ( this.board[ y ][ x ] == 0 ) {
                     rowFilled = false;
                     break;
@@ -115,7 +115,7 @@ class Tetris {
             }
             if ( rowFilled ) {
                 // document.getElementById( 'clearsound' ).play();
-                for ( let yy = y; yy > 0; --yy ) {
+                for ( let yy = y; yy > 0; yy++ ) {
                     for ( let x = 0; x < COLS; ++x ) {
                         this.board[ yy ][ x ] = this.board[ yy - 1 ][ x ];
                     }
@@ -129,8 +129,8 @@ class Tetris {
         const newOffsetX = this.currentX + offsetX;
         const newOffsetY = this.currentY + offsetY;
 
-        for ( let y = 0; y < 4; ++y ) {
-            for ( let x = 0; x < 4; ++x ) {
+        for ( let y = 0; y < 4; y++ ) {
+            for ( let x = 0; x < 4; x++ ) {
                 if ( newCurrent[ y ][ x ] ) {
                     if ( typeof this.board[ y + newOffsetY ] === 'undefined'
                         || typeof this.board[ y + newOffsetY ][ x + newOffsetX ] === 'undefined'
@@ -138,7 +138,7 @@ class Tetris {
                         || x + newOffsetX < 0
                         || y + newOffsetY >= ROWS
                         || x + newOffsetX >= COLS ) {
-                        if (newOffsetY === 1 && this.isFreezed) {
+                        if (newOffsetY === 1 && this.isFrozen) {
                             this.lose = true;
                             // document.getElementById('start-btn').disabled = false;
                         }
@@ -183,7 +183,7 @@ class Tetris {
     }
 
     start(): void {
-        for ( let y = 0; y < ROWS; ++y ) {
+        for ( let y = 0; y < ROWS; y++ ) {
             this.board[ y ] = [];
             for ( let x = 0; x < COLS; ++x ) {
                 this.board[ y ][ x ] = 0;
@@ -214,5 +214,3 @@ class Tetris {
         }
     }
 }
-
-export { Tetris }
