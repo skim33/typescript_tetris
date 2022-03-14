@@ -1,22 +1,22 @@
 const COLS = 10, ROWS = 20
 
 class Tetris {
-    private board: any[];
+    private readonly board: any[];
     private lose: boolean;
-    private interval: number;
-    private intervalRender: number;
+    private interval: NodeJS.Timeout | undefined;
+    private intervalRender: NodeJS.Timeout | undefined;
     private current: any[];
     private currentX: number;
     private currentY: number;
     private isFreezed: boolean;
-    private shapes: [number[], number[], number[], number[], number[], number[], number[]];
+    private readonly shapes: [number[], number[], number[], number[], number[], number[], number[]];
     private colors: string[];
 
     constructor() {
         this.board = [];
         this.lose = false;
-        this.interval = 0;
-        this.intervalRender = 0;
+        this.interval = undefined;
+        this.intervalRender = undefined;
         this.current = [[], []];
         this.currentX = 0;
         this.currentY = 0;
@@ -78,21 +78,18 @@ class Tetris {
         return cur;
     }
 
-// keep the element moving down, creating new shapes and clearing lines
-    function tick() {
-        if ( valid( 0, 1 ) ) {
-            ++currentY;
-        }
-        // if the element settled
-        else {
-            freeze();
-            valid(0, 1);
-            clearLines();
-            if (lose) {
-                clearAllIntervals();
+    tick() {
+        if ( this.validate( 0, 1 ) ) {
+            ++this.currentY;
+        } else {
+            this.freeze();
+            this.validate(0, 1);
+            this.clearFilledLines();
+            if (this.lose) {
+                this.clearAllIntervals();
                 return false;
             }
-            newShape();
+            this.newShape();
         }
     }
 
@@ -107,21 +104,20 @@ class Tetris {
         this.isFreezed = true;
     }
 
-    // here
-    clearfilledLines(): void {
-        for ( var y = ROWS - 1; y >= 0; --y ) {
-            var rowFilled = true;
-            for ( var x = 0; x < COLS; ++x ) {
-                if ( board[ y ][ x ] == 0 ) {
+    clearFilledLines(): void {
+        for ( let y = ROWS - 1; y >= 0; --y ) {
+            let rowFilled = true;
+            for ( let x = 0; x < COLS; ++x ) {
+                if ( this.board[ y ][ x ] == 0 ) {
                     rowFilled = false;
                     break;
                 }
             }
             if ( rowFilled ) {
-                document.getElementById( 'clearsound' ).play();
-                for ( var yy = y; yy > 0; --yy ) {
-                    for ( var x = 0; x < COLS; ++x ) {
-                        board[ yy ][ x ] = board[ yy - 1 ][ x ];
+                // document.getElementById( 'clearsound' ).play();
+                for ( let yy = y; yy > 0; --yy ) {
+                    for ( let x = 0; x < COLS; ++x ) {
+                        this.board[ yy ][ x ] = this.board[ yy - 1 ][ x ];
                     }
                 }
                 ++y;
@@ -129,26 +125,22 @@ class Tetris {
         }
     }
 
-    // checks if the resulting position of current shape will be feasible
-    function valid( offsetX, offsetY, newCurrent ) {
-        offsetX = offsetX || 0;
-        offsetY = offsetY || 0;
-        offsetX = currentX + offsetX;
-        offsetY = currentY + offsetY;
-        newCurrent = newCurrent || current;
+    validate( offsetX = 0, offsetY = 0, newCurrent = this.current ): boolean {
+        const newOffsetX = this.currentX + offsetX;
+        const newOffsetY = this.currentY + offsetY;
 
-        for ( var y = 0; y < 4; ++y ) {
-            for ( var x = 0; x < 4; ++x ) {
+        for ( let y = 0; y < 4; ++y ) {
+            for ( let x = 0; x < 4; ++x ) {
                 if ( newCurrent[ y ][ x ] ) {
-                    if ( typeof board[ y + offsetY ] == 'undefined'
-                        || typeof board[ y + offsetY ][ x + offsetX ] == 'undefined'
-                        || board[ y + offsetY ][ x + offsetX ]
-                        || x + offsetX < 0
-                        || y + offsetY >= ROWS
-                        || x + offsetX >= COLS ) {
-                        if (offsetY == 1 && freezed) {
-                            lose = true; // lose if the current shape is settled at the top most row
-                            document.getElementById('playbutton').disabled = false;
+                    if ( typeof this.board[ y + newOffsetY ] === 'undefined'
+                        || typeof this.board[ y + newOffsetY ][ x + newOffsetX ] === 'undefined'
+                        || this.board[ y + newOffsetY ][ x + newOffsetX ]
+                        || x + newOffsetX < 0
+                        || y + newOffsetY >= ROWS
+                        || x + newOffsetX >= COLS ) {
+                        if (newOffsetY === 1 && this.isFreezed) {
+                            this.lose = true;
+                            // document.getElementById('start-btn').disabled = false;
                         }
                         return false;
                     }
@@ -158,62 +150,69 @@ class Tetris {
         return true;
     }
 
-    function keyPress( key ) {
+    keyPress( key: string ) {
         switch ( key ) {
             case 'left':
-                if ( valid( -1 ) ) {
-                    --currentX;
+                if ( this.validate( -1 ) ) {
+                    --this.currentX;
                 }
                 break;
             case 'right':
-                if ( valid( 1 ) ) {
-                    ++currentX;
+                if ( this.validate( 1 ) ) {
+                    ++this.currentX;
                 }
                 break;
             case 'down':
-                if ( valid( 0, 1 ) ) {
-                    ++currentY;
+                if ( this.validate( 0, 1 ) ) {
+                    ++this.currentY;
                 }
                 break;
             case 'rotate':
-                var rotated = rotate( current );
-                if ( valid( 0, 0, rotated ) ) {
-                    current = rotated;
+                let rotated = this.rotate();
+                if ( this.validate( 0, 0, rotated ) ) {
+                    this.current = rotated;
                 }
                 break;
             case 'drop':
-                while( valid(0, 1) ) {
-                    ++currentY;
+                while( this.validate(0, 1) ) {
+                    ++this.currentY;
                 }
-                tick();
+                this.tick();
                 break;
         }
     }
 
     start(): void {
-        this.newShape();
+        for ( let y = 0; y < ROWS; ++y ) {
+            this.board[ y ] = [];
+            for ( let x = 0; x < COLS; ++x ) {
+                this.board[ y ][ x ] = 0;
+            }
+        }
     }
 
-    // function playButtonClicked() {
-    //     newGame();
-    //     document.getElementById("playbutton").disabled = true;
-    // }
-    //
-    // function newGame() {
-    //     clearAllIntervals();
-    //     intervalRender = setInterval( render, 30 );
-    //     init();
-    //     newShape();
-    //     lose = false;
-    //     interval = setInterval( tick, 400 );
-    // }
-    //
-    // function clearAllIntervals(){
-    //     clearInterval( interval );
-    //     clearInterval( intervalRender );
-    // }
+    playButtonClicked() {
+        this.newGame();
+        // document.getElementById("start-btn").disabled = true;
+    }
 
+    newGame() {
+        this.clearAllIntervals();
+        this.intervalRender = setInterval( render, 30 );
+        this.clearBoard();
+        this.newShape();
+        this.lose = false;
+        this.interval = setInterval( this.tick, 400 );
+    }
 
+    clearAllIntervals(){
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        if (this.intervalRender) {
+            clearInterval(this.intervalRender);
+        }
+    }
 }
 
 export { Tetris }
